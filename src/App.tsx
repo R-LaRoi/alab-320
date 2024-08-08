@@ -15,8 +15,6 @@ function App() {
     try {
       const response = await axios('https://jsonplaceholder.typicode.com/todos');
       const data = await response.data;
-    setTodos(data);
-      data.slice(0, 15);
       setTodos(data);
     } catch (error) {
       console.error('Error', error);
