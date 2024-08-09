@@ -1,5 +1,6 @@
 import  { useEffect, useState, useReducer} from 'react';
 import axios from 'axios';
+import './App.css';
 
 interface Todo {
   userId: number;
@@ -77,7 +78,7 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
       <form onSubmit={newTodo}>
       <span>
       <input type="text" placeholder="add todo"  name="inputText"/>
-     <input type="submit" value="add"  /></span>
+     <input className="btn" type="submit" value="add"  /></span>
     </form>
       <ul>
       {userTodos.map((todo, index) => (
@@ -92,10 +93,12 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
           {state[index] && (
             <>
             <input
+            className="btn"
               type="button"
               value="delete"
               onClick={() => console.log(`Delete button clicked for item ${index}`)}
             /><input
+            className="btn"
              type="button"
              value="edit"
              onClick={() => console.log(`Edit item ${index}`)} />
@@ -115,9 +118,11 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
           />{todo.title} 
        {state[todo.id] && (
             <><input
+            className="btn"
              type="button"
              value="delete"
              onClick={() => console.log(`Delete  item ${todo.id}`)} /><input
+             className="btn"
              type="button"
              value="edit"
              onClick={() => console.log(`Edit  item ${todo.id}`)} /></>
