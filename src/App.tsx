@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import  { useEffect, useState, useReducer} from 'react';
 import axios from 'axios';
 
 interface Todo {
@@ -8,17 +8,16 @@ interface Todo {
   completed: boolean;
 }
 
-interface AddTodosProps {
-  title: string
-}
-
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]); 
   const [inputText, setInputText] = useState<string | undefined>();
   const [userTodos, setUserTodos] = useState<string[]>([]);
+  
+  // used useReducer for state mgmt instead of useState
+  // const [isChecked, setIsChecked] = useState<boolean[]> ([]);
 
- const [isChecked, setIsChecked] = useState<boolean[]> ([]);
-
+  const initState = [false, false, false, false, false];
+   const [state, dispatch] = useReducer(reducer, initState);
 
 
   async function getTodos() {
@@ -49,15 +48,26 @@ function App() {
 
 
   }
- 
 
-  const handleCheckbox = (index: number) => {
-    setIsChecked((prev) => {
-      const updatedChecked = [...prev];
-      updatedChecked[index] = !updatedChecked[index];
+//  refactored this function to useReducer ----
+// function handleCheckbox (index: number) {
+//     setIsChecked((prev) => {
+//       const updatedChecked = [...prev];
+//       updatedChecked[index] = !updatedChecked[index];
+//       return updatedChecked;
+//     });
+//   };
+
+function reducer(state: any, action: { type: any; updatedChecked: string | number; }) {
+  switch (action.type) {
+    case 'isChecked':
+      const updatedChecked = [...state];
+      updatedChecked[action.updatedChecked as number] = !updatedChecked[action.updatedChecked as number];
       return updatedChecked;
-    });
-  };
+    default:
+      return state;
+  }
+}
 
 
 
@@ -75,34 +85,42 @@ function App() {
           <input
             type="checkbox"
             name="done"
-            checked={isChecked[index]}
-            onChange={() => handleCheckbox(index)}
+            checked={state[index]}
+              onChange={() => dispatch({ type: 'isChecked', updatedChecked: index })}
           />
           {todo}
-          {isChecked[index] && (
+          {state[index] && (
+            <>
             <input
               type="button"
               value="delete"
               onClick={() => console.log(`Delete button clicked for item ${index}`)}
-            />
+            /><input
+             type="button"
+             value="edit"
+             onClick={() => console.log(`Edit item ${index}`)} />
+             </>
           )}
         </li>
       ))}
   
     
-     {todos.slice(0, 10).map((todo) => (
+     {todos.slice(10, 25).map((todo) => (
      <li key={todo.id}> <input
             type="checkbox"
             name="done"
-            checked={isChecked[todo.id]}
-            onChange={() => handleCheckbox(todo.id)}
+             checked={state[todo.id]}
+              onChange={() => dispatch({ type: 'isChecked', updatedChecked: todo.id })}
+            
           />{todo.title} 
-       {isChecked[todo.id] && (
-            <input
-              type="button"
-              value="delete"
-              onClick={() => console.log(`Delete  item ${todo.id}`)}
-            />
+       {state[todo.id] && (
+            <><input
+             type="button"
+             value="delete"
+             onClick={() => console.log(`Delete  item ${todo.id}`)} /><input
+             type="button"
+             value="edit"
+             onClick={() => console.log(`Edit  item ${todo.id}`)} /></>
           )}</li>
 
 
