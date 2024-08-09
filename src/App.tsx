@@ -17,7 +17,7 @@ function App() {
   // used useReducer for state mgmt instead of useState
   // const [isChecked, setIsChecked] = useState<boolean[]> ([]);
 
-  const initState = [false, false, false, false, false];
+  const initState = [false];
    const [state, dispatch] = useReducer(reducer, initState);
 
 
@@ -26,6 +26,7 @@ function App() {
       const response = await axios('https://jsonplaceholder.typicode.com/todos');
       const data = await response.data;
       setTodos(data);
+ 
     } catch (error) {
       console.error('Error', error);
     }
@@ -49,24 +50,24 @@ function App() {
 
 
   }
+function deleteTodo(index: number) {
+    setUserTodos((prevUserTodos) => prevUserTodos.filter((_, i) => i !== index));
+    dispatch({ type: 'deleteTodo', index });
+    console.log('item deleted')
+  }
 
-//  refactored this function to useReducer ----
-// function handleCheckbox (index: number) {
-//     setIsChecked((prev) => {
-//       const updatedChecked = [...prev];
-//       updatedChecked[index] = !updatedChecked[index];
-//       return updatedChecked;
-//     });
-//   };
 
-function reducer(state: any, action: { type: any; updatedChecked: string | number; }) {
+function reducer(state: boolean[], action: { type: string; index: number }) {
   switch (action.type) {
     case 'isChecked':
       const updatedChecked = [...state];
-      updatedChecked[action.updatedChecked as number] = !updatedChecked[action.updatedChecked as number];
-      return updatedChecked;
+        updatedChecked[action.index] = !updatedChecked[action.index];
+        return updatedChecked;
+       case 'deleteTodo':
+      return state.filter((_, index) => index !== action.index);
     default:
       return state;
+   
   }
 }
 
@@ -76,10 +77,11 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
     <>
       <h1>Task List</h1>
       <form onSubmit={newTodo}>
-      <span>
-      <input type="text" placeholder="add todo"  name="inputText"/>
-     <input className="btn" type="submit" value="add"  /></span>
-    </form>
+          <span>
+          <input type="text" placeholder="add todo" name="inputText"/>
+          <input className="btn" type="submit" value="add" />
+        </span>
+     </form>
       <ul>
       {userTodos.map((todo, index) => (
         <li key={index}>
@@ -87,18 +89,19 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
             type="checkbox"
             name="done"
             checked={state[index]}
-              onChange={() => dispatch({ type: 'isChecked', updatedChecked: index })}
+            onChange={() => dispatch({ type: 'isChecked', index })}
           />
           {todo}
           {state[index] && (
             <>
             <input
-            className="btn"
+              className="btn"
               type="button"
               value="delete"
-              onClick={() => console.log(`Delete button clicked for item ${index}`)}
-            /><input
-            className="btn"
+              onClick={()=> deleteTodo(index)}
+            />
+            <input
+             className="btn"
              type="button"
              value="edit"
              onClick={() => console.log(`Edit item ${index}`)} />
@@ -109,34 +112,38 @@ function reducer(state: any, action: { type: any; updatedChecked: string | numbe
   
     
      {todos.slice(10, 25).map((todo) => (
-     <li key={todo.id}> <input
-            type="checkbox"
-            name="done"
-             checked={state[todo.id]}
-              onChange={() => dispatch({ type: 'isChecked', updatedChecked: todo.id })}
-            
-          />{todo.title} 
-       {state[todo.id] && (
-            <><input
+     <li key={todo.id}> 
+     <input
+          type="checkbox"
+          name="done"
+          checked={state[todo.id]}
+          onChange={() => dispatch({ type: 'isChecked', index: todo.id })}
+          />
+          {todo.title} 
+        
+          {state[todo.id] && (
+          <>
+            <input
             className="btn"
              type="button"
              value="delete"
-             onClick={() => console.log(`Delete  item ${todo.id}`)} /><input
+             onClick={() => (deleteTodo(todo.id)
+             )} />
+            
+            <input
              className="btn"
              type="button"
              value="edit"
-             onClick={() => console.log(`Edit  item ${todo.id}`)} /></>
-          )}</li>
-
-
+             onClick={() => console.log(`Edit  item ${todo.id}`)} />
+             </>
+          )}
+          </li>
 
   ))}
       </ul>
 
 <section>
 </section>
-
-
 
     </>
   );
